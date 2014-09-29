@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
-	"log"
 )
 
 // History of bytes, line oriented. Will keep an history of
@@ -86,7 +85,6 @@ func (r *ring) Walk(walk func([]byte)) {
 
 	bytesBetween := r.Len()
 	lastHead := r.head
-	log.Printf("walk lastHead=%d\tbytesBetween=%d", lastHead, bytesBetween)
 
 	for i := r.head; i < r.head+bytesBetween; i++ {
 		idx := imin(i%len(r.buffer), i)
@@ -104,7 +102,6 @@ func (r *ring) Walk(walk func([]byte)) {
 
 			lastHead = tail
 		}
-		log.Printf("idx=%d", idx)
 	}
 }
 
