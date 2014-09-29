@@ -179,7 +179,7 @@ func TestAddingLineFitsOnlyOneManyTimes(t *testing.T) {
 func TestNeverExceedMaxSize(t *testing.T) {
 	length := 23
 	ring := linehistory.NewRing(length, '\n')
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 10000; i++ {
 		ring.Add(randByte(mrand.Intn(length-1) + 1))
 		if ring.Cap() > length {
 			t.Fatalf("want capacity of %d, got %d", length, ring.Cap())
