@@ -17,7 +17,8 @@ type History interface {
 }
 
 type ring struct {
-	buffer []byte
+	maxSize int
+	buffer  []byte
 
 	head int
 	tail int
@@ -32,10 +33,11 @@ type ring struct {
 // the end of a line. The history is held in a ring buffer.
 func NewRing(maxSize int, sep byte) History {
 	return &ring{
-		buffer: make([]byte, maxSize),
-		head:   0,
-		tail:   0,
-		sep:    sep,
+		maxSize: maxSize,
+		buffer:  make([]byte, maxSize),
+		head:    0,
+		tail:    0,
+		sep:     sep,
 	}
 }
 
@@ -55,6 +57,11 @@ func (r *ring) Cap() int { return cap(r.buffer) }
 // Adding a line that is longer than the max size of the ring
 // will panic.
 func (r *ring) Add(b []byte) {
+
+	if len(b) > r.maxSize {
+		b = b[len(b)-r.maxSize:]
+	}
+
 	// if head beyond tail, need to wrap over
 	newTail := (len(b) + r.tail)
 

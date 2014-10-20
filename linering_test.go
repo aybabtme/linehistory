@@ -103,15 +103,25 @@ func TestCanOverflowRing(t *testing.T) {
 	t.Logf("\n%v", ring)
 }
 
-func TestAddLineBiggerThanBufferPanics(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected a panic, got nothing")
-		}
-	}()
-
+func TestAddLineBiggerThanBufferTruncatesLine(t *testing.T) {
 	ring := linehistory.NewRing(10, '\n')
-	ring.Add([]byte("i am more than 10 bytes long\n"))
+	input := []byte("i am more than 10 bytes long\n")
+	want := input[len(input)-10:]
+	ring.Add(input)
+
+	var got []byte
+	ring.Walk(func(b []byte) {
+		if got == nil {
+			got = b
+		} else {
+			t.Errorf("too many line")
+		}
+	})
+	t.Logf("want=%x (%q)", want, string(want))
+	t.Logf("got =%x (%q)", got, string(got))
+	if !bytes.Equal(want, got) {
+		t.Errorf("mismatch")
+	}
 }
 
 func TestAddingLineSameSize(t *testing.T) {
