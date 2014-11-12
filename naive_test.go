@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-func TestCanAddUniqueLine(t *testing.T) {
-	ring := linehistory.NewRing(20, '\n')
+func TestNaiveCanAddUniqueLine(t *testing.T) {
+	ring := linehistory.NewNaive(20, '\n')
 
 	msg := []byte("hello!\n")
 	ring.Add(msg)
@@ -28,8 +28,8 @@ func TestCanAddUniqueLine(t *testing.T) {
 	}
 }
 
-func TestCanAddTwoLines(t *testing.T) {
-	ring := linehistory.NewRing(20, '\n')
+func TestNaiveCanAddTwoLines(t *testing.T) {
+	ring := linehistory.NewNaive(20, '\n')
 
 	want := [][]byte{
 		[]byte("hello!\n"),
@@ -62,8 +62,8 @@ func TestCanAddTwoLines(t *testing.T) {
 	t.Logf("\n%v", ring)
 }
 
-func TestCanOverflowRing(t *testing.T) {
-	ring := linehistory.NewRing(20, '\n')
+func TestNaiveCanOverflow(t *testing.T) {
+	ring := linehistory.NewNaive(20, '\n')
 
 	input := [][]byte{
 		[]byte("hello!\n"), // this line will be evicted
@@ -90,8 +90,8 @@ func TestCanOverflowRing(t *testing.T) {
 		t.Errorf("want len %d, got %d", len(want), len(got))
 	}
 
-	for i, gotLine := range got {
-		wantLine := want[i]
+	for i, wantLine := range want {
+		gotLine := got[i]
 		t.Logf("idx =%d", i)
 		t.Logf("want=%x (%q)", wantLine, string(wantLine))
 		t.Logf("got =%x (%q)", gotLine, string(gotLine))
@@ -103,8 +103,8 @@ func TestCanOverflowRing(t *testing.T) {
 	t.Logf("\n%v", ring)
 }
 
-func TestAddLineBiggerThanBufferTruncatesLine(t *testing.T) {
-	ring := linehistory.NewRing(10, '\n')
+func TestNaiveAddLineBiggerThanBufferTruncatesLine(t *testing.T) {
+	ring := linehistory.NewNaive(10, '\n')
 	input := []byte("i am more than 10 bytes long\n")
 	want := input[len(input)-10:]
 	ring.Add(input)
@@ -124,9 +124,9 @@ func TestAddLineBiggerThanBufferTruncatesLine(t *testing.T) {
 	}
 }
 
-func TestAddingLineSameSize(t *testing.T) {
+func TestNaiveAddingLineSameSize(t *testing.T) {
 	length := 20
-	ring := linehistory.NewRing(length, '\n')
+	ring := linehistory.NewNaive(length, '\n')
 	data := append(bytes.Repeat([]byte{0xFF}, length-1), '\n')
 
 	ring.Add(data)
@@ -143,9 +143,9 @@ func TestAddingLineSameSize(t *testing.T) {
 	t.Logf("%v", ring)
 }
 
-func TestAddingLineSameSizeManyTimes(t *testing.T) {
+func TestNaiveAddingLineSameSizeManyTimes(t *testing.T) {
 	length := 20
-	ring := linehistory.NewRing(length, '\n')
+	ring := linehistory.NewNaive(length, '\n')
 	data := append(bytes.Repeat([]byte{0xFF}, length-1), '\n')
 
 	for i := 0; i < 100; i++ {
@@ -164,10 +164,10 @@ func TestAddingLineSameSizeManyTimes(t *testing.T) {
 	t.Logf("%v", ring)
 }
 
-func TestAddingLineFitsOnlyOneManyTimes(t *testing.T) {
+func TestNaiveAddingLineFitsOnlyOneManyTimes(t *testing.T) {
 
 	data := []byte("herp\n")
-	ring := linehistory.NewRing(len(data)+2, '\n')
+	ring := linehistory.NewNaive(len(data)+2, '\n')
 
 	for i := 0; i < 1000; i++ {
 		ring.Add(data)
@@ -186,13 +186,13 @@ func TestAddingLineFitsOnlyOneManyTimes(t *testing.T) {
 	t.Logf("%v", ring)
 }
 
-func TestNeverExceedMaxSize(t *testing.T) {
+func TestNaiveNeverExceedMaxSize(t *testing.T) {
 	length := 23
-	ring := linehistory.NewRing(length, '\n')
+	ring := linehistory.NewNaive(length, '\n')
 	for i := 0; i < 10000; i++ {
 		ring.Add(randByte(mrand.Intn(length-1) + 1))
-		if ring.Cap() > length {
-			t.Fatalf("want capacity of %d, got %d", length, ring.Cap())
+		if ring.Len() > length {
+			t.Fatalf("want capacity of %d, got %d", length, ring.Len())
 		}
 	}
 }
